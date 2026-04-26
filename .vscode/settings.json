@@ -1,0 +1,11 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/backend/.venv/bin/python3.12",
+  "python.interpreter.uri": "${workspaceFolder}/backend/.venv/bin/python3.12",
+  "python.analysis.pythonPath": "${workspaceFolder}/backend/.venv/bin/python3.12",
+  "python.analysis.extraPaths": ["${workspaceFolder}/backend"],
+  "python.envFile": "${workspaceFolder}/backend/.env",
+  "pylance.extraPaths": ["${workspaceFolder}/backend"],
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  }
+}
