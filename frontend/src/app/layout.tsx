@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Header } from "@/components/Header";
@@ -15,7 +16,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <ThemeProvider>
           <div className="min-h-screen flex flex-col">
-            <Header />
+            <Suspense fallback={<div className="h-16 border-b border-gray-200 dark:border-zinc-800" />}>
+              <Header />
+            </Suspense>
             <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
               {children}
             </main>
