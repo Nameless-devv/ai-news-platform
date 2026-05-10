@@ -46,58 +46,116 @@ Return this exact JSON structure:
   "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"]
 }}"""
 
-# Static fallback dictionary: common Uzbek/Russian → English synonyms
+# Static synonym dictionary: Uzbek/Russian/English ↔ expansions
 QUERY_SYNONYMS: dict[str, list[str]] = {
-    # Ta'lim
-    "talim": ["ta'lim", "talim", "education", "school", "university", "maktab", "образование"],
-    "ta'lim": ["ta'lim", "talim", "education", "school", "university", "maktab", "образование"],
-    "maktab": ["maktab", "school", "education", "ta'lim", "учеба"],
-    "universitet": ["university", "universitet", "college", "вуз", "институт"],
-    # Sog'liq
-    "salomatlik": ["salomatlik", "health", "medical", "sog'liq", "здоровье", "медицина"],
-    "sog'liq": ["sog'liq", "salomatlik", "health", "medical", "здоровье"],
-    "tibbiyot": ["tibbiyot", "medical", "health", "medicine", "медицина"],
-    "kasallik": ["kasallik", "disease", "illness", "virus", "болезнь"],
-    # Iqtisodiyot
-    "iqtisodiyot": ["iqtisodiyot", "economy", "economic", "finance", "экономика", "бизнес"],
-    "biznes": ["biznes", "business", "economy", "компания", "firm"],
-    "pul": ["pul", "money", "finance", "currency", "деньги"],
-    "narx": ["narx", "price", "cost", "инфляция", "inflation"],
-    # Siyosat
-    "siyosat": ["siyosat", "politics", "political", "government", "политика"],
-    "hukumat": ["hukumat", "government", "политика", "власть", "president"],
-    "prezident": ["president", "prezident", "presidency", "president"],
-    # Texnologiya
-    "texnologiya": ["texnologiya", "technology", "tech", "технологии", "AI", "digital"],
-    "sun'iy intellekt": ["AI", "artificial intelligence", "machine learning", "sun'iy intellekt"],
-    "ai": ["AI", "artificial intelligence", "ChatGPT", "sun'iy intellekt", "технологии"],
-    "dastur": ["software", "app", "dastur", "программа", "application"],
+    # Ta'lim / Education
+    "talim":        ["education", "school", "university", "ta'lim", "talim", "maktab", "образование", "учеба"],
+    "ta'lim":       ["education", "school", "university", "ta'lim", "talim", "maktab", "образование"],
+    "maktab":       ["school", "maktab", "education", "ta'lim", "учеба", "класс"],
+    "universitet":  ["university", "college", "institut", "вуз", "университет", "higher education"],
+    "oliy ta'lim":  ["university", "college", "higher education", "вуз", "ta'lim"],
+    "stipendiya":   ["scholarship", "grant", "stipend", "стипендия"],
+    "imtihon":      ["exam", "test", "examination", "экзамен", "имтихон"],
+
+    # Sog'liq / Health
+    "salomatlik":   ["health", "medical", "sog'liq", "salomatlik", "здоровье", "медицина", "wellness"],
+    "soglik":       ["health", "medical", "salomatlik", "здоровье", "медицина"],
+    "sog'liq":      ["health", "medical", "salomatlik", "здоровье", "медицина"],
+    "tibbiyot":     ["medical", "health", "medicine", "hospital", "медицина", "tibbiyot"],
+    "kasallik":     ["disease", "illness", "virus", "infection", "болезнь", "эпидемия"],
+    "koronavirus":  ["coronavirus", "covid", "pandemic", "вирус", "ковид"],
+    "dori":         ["medicine", "drug", "pharmaceutical", "лекарство", "препарат"],
+    "shifoxona":    ["hospital", "clinic", "больница", "клиника", "medical"],
+
+    # Iqtisodiyot / Economy
+    "iqtisodiyot":  ["economy", "economic", "finance", "GDP", "iqtisodiyot", "экономика", "бюджет"],
+    "biznes":       ["business", "company", "firm", "бизнес", "компания", "корпорация"],
+    "pul":          ["money", "currency", "cash", "деньги", "валюта", "финансы"],
+    "narx":         ["price", "cost", "inflation", "narx", "цена", "инфляция"],
+    "inflyatsiya":  ["inflation", "price", "cost", "нарх", "инфляция"],
+    "byudjet":      ["budget", "finance", "spending", "бюджет", "финансирование"],
+    "investitsiya": ["investment", "invest", "capital", "инвестиция", "капитал"],
+    "bank":         ["bank", "banking", "finance", "банк", "кредит"],
+    "ish":          ["work", "job", "employment", "labor", "работа", "занятость"],
+    "ish o'rni":    ["job", "employment", "vacancy", "работа", "вакансия"],
+
+    # Siyosat / Politics
+    "siyosat":      ["politics", "political", "government", "policy", "siyosat", "политика", "власть"],
+    "hukumat":      ["government", "cabinet", "ministry", "hukumat", "правительство", "власть"],
+    "prezident":    ["president", "presidency", "leader", "президент", "глава"],
+    "parlament":    ["parliament", "senate", "congress", "парламент", "олий мажлис"],
+    "saylov":       ["election", "vote", "voting", "референдум", "выборы"],
+    "vazir":        ["minister", "ministry", "cabinet", "министр", "правительство"],
+    "qonun":        ["law", "legislation", "legal", "закон", "законодательство"],
+    "davlat":       ["state", "government", "nation", "государство", "страна"],
+    "diplomatiya":  ["diplomacy", "diplomatic", "foreign affairs", "дипломатия"],
+
+    # Texnologiya / Technology
+    "texnologiya":  ["technology", "tech", "digital", "innovation", "технологии", "texnologiya", "AI"],
+    "texnolog":     ["technology", "tech", "digital", "технологии"],
+    "sun'iy intellekt": ["AI", "artificial intelligence", "machine learning", "ChatGPT", "sun'iy intellekt"],
+    "suniy intellekt":  ["AI", "artificial intelligence", "machine learning", "sun'iy intellekt"],
+    "ai":           ["AI", "artificial intelligence", "ChatGPT", "GPT", "machine learning", "технологии"],
+    "internet":     ["internet", "web", "online", "digital", "интернет"],
+    "dastur":       ["software", "app", "application", "program", "программа", "приложение"],
+    "ilovа":        ["app", "application", "software", "мобильный", "mobile"],
+    "kompyuter":    ["computer", "PC", "laptop", "компьютер", "digital"],
+    "telefon":      ["phone", "smartphone", "mobile", "телефон", "мобильный"],
+    "kiberhujum":   ["cyberattack", "hacking", "cybersecurity", "кибератака", "хакер"],
+
     # Sport
-    "futbol": ["futbol", "football", "soccer", "FIFA", "матч"],
-    "sport": ["sport", "sports", "athletic", "спорт", "championship"],
-    "olimpiya": ["olympics", "olympic", "olimpiya", "Олимпиада"],
-    # Urush / xavfsizlik
-    "urush": ["urush", "war", "conflict", "военный", "война"],
-    "tinchlik": ["tinchlik", "peace", "мир", "договор", "agreement"],
-    "xavfsizlik": ["xavfsizlik", "security", "безопасность", "safety"],
-    # Tabiat / ekologiya
-    "iqlim": ["iqlim", "climate", "environment", "weather", "климат"],
-    "zilzila": ["zilzila", "earthquake", "natural disaster", "землетрясение"],
-    # Madaniyat
-    "madaniyat": ["madaniyat", "culture", "cultural", "art", "культура"],
-    "musiqa": ["musiqa", "music", "concert", "музыка"],
-    "kino": ["kino", "film", "movie", "cinema", "фильм"],
-    # O'zbekiston
-    "uzbekiston": ["uzbekistan", "o'zbekiston", "Uzbekistán", "узбекистан"],
-    "o'zbekiston": ["uzbekistan", "o'zbekiston", "узбекистан"],
-    "toshkent": ["tashkent", "toshkent", "Ташкент"],
-    # Rus so'zlari
-    "образование": ["education", "school", "university", "ta'lim", "образование"],
-    "экономика": ["economy", "economic", "iqtisodiyot", "экономика"],
-    "политика": ["politics", "government", "siyosat", "политика"],
-    "здоровье": ["health", "medical", "salomatlik", "здоровье"],
-    "технологии": ["technology", "tech", "texnologiya", "технологии"],
-    "спорт": ["sport", "sports", "спорт", "athletic"],
+    "futbol":       ["football", "soccer", "FIFA", "goal", "матч", "футбол", "futbol"],
+    "sport":        ["sport", "sports", "athletic", "championship", "спорт", "соревнование"],
+    "olimpiya":     ["olympics", "olympic", "olympiad", "Олимпиада", "Olympic Games"],
+    "chempionat":   ["championship", "tournament", "league", "чемпионат", "турнир"],
+    "basketbol":    ["basketball", "NBA", "баскетбол"],
+    "tennis":       ["tennis", "ATP", "WTA", "теннис"],
+    "boks":         ["boxing", "fight", "бокс", "поединок"],
+    "yengil atletika": ["athletics", "running", "track", "лёгкая атлетика"],
+
+    # Urush / Xavfsizlik
+    "urush":        ["war", "conflict", "military", "war zone", "urush", "война", "военный"],
+    "tinchlik":     ["peace", "ceasefire", "agreement", "мир", "перемирие", "договор"],
+    "xavfsizlik":   ["security", "safety", "defense", "безопасность", "оборона"],
+    "terrorchilik": ["terrorism", "terrorist", "attack", "теракт", "терроризм"],
+    "qurolli":      ["armed", "military", "weapons", "вооружённый", "оружие"],
+    "harbiy":       ["military", "army", "defense", "армия", "военный"],
+
+    # Tabiat / Muhit
+    "iqlim":        ["climate", "environment", "global warming", "weather", "климат", "экология"],
+    "zilzila":      ["earthquake", "disaster", "tremor", "землетрясение", "стихия"],
+    "suv toshqini": ["flood", "flooding", "disaster", "наводнение", "стихийное бедствие"],
+    "ekologiya":    ["ecology", "environment", "climate", "экология", "окружающая среда"],
+    "ob-havo":      ["weather", "climate", "forecast", "погода", "прогноз"],
+
+    # Madaniyat / San'at
+    "madaniyat":    ["culture", "cultural", "art", "tradition", "мадания", "культура", "искусство"],
+    "musiqa":       ["music", "concert", "song", "album", "музыка", "концерт"],
+    "kino":         ["film", "movie", "cinema", "кино", "фильм", "режиссер"],
+    "san'at":       ["art", "artist", "exhibition", "искусство", "выставка"],
+    "kitob":        ["book", "literature", "author", "книга", "литература"],
+
+    # O'zbekiston joylari
+    "uzbekiston":   ["uzbekistan", "o'zbekiston", "UZ", "узбекистан", "Ўзбекистон"],
+    "o'zbekiston":  ["uzbekistan", "o'zbekiston", "UZ", "узбекистан"],
+    "toshkent":     ["tashkent", "toshkent", "Ташкент", "capital"],
+    "samarqand":    ["samarkand", "samarqand", "Самарканд"],
+    "buxoro":       ["bukhara", "buxoro", "Бухара"],
+    "farg'ona":     ["fergana", "farg'ona", "Фергана"],
+    "namangan":     ["namangan", "Наманган"],
+    "andijon":      ["andijan", "andijon", "Андижан"],
+
+    # Rus so'zlari (kirilcha)
+    "образование":  ["education", "school", "university", "ta'lim", "образование"],
+    "экономика":    ["economy", "economic", "finance", "iqtisodiyot", "экономика"],
+    "политика":     ["politics", "government", "policy", "siyosat", "политика"],
+    "здоровье":     ["health", "medical", "salomatlik", "здоровье", "медицина"],
+    "технологии":   ["technology", "tech", "AI", "texnologiya", "технологии"],
+    "спорт":        ["sport", "sports", "athletic", "спорт", "чемпионат"],
+    "война":        ["war", "conflict", "military", "urush", "война"],
+    "безопасность": ["security", "safety", "xavfsizlik", "безопасность"],
+    "наука":        ["science", "research", "ilm", "наука", "исследование"],
+    "бизнес":       ["business", "company", "economy", "biznes", "бизнес"],
 }
 
 
@@ -204,41 +262,54 @@ class AIService:
             return None
 
     async def expand_query(self, query: str) -> list[str]:
-        """Expand search query into multilingual synonyms. Falls back to static dict if AI unavailable."""
+        """Expand search query into multilingual synonyms using static dictionary (no AI API needed)."""
         if not query or not query.strip():
             return [query]
 
         q = query.strip().lower()
-        cache_key = cache.make_key("ai", "search", cache.hash_key(q))
+        cache_key = cache.make_key("search", "expand", cache.hash_key(q))
         cached = await cache.get(cache_key)
         if cached:
             return cached
 
-        # Static dictionary lookup first (instant, no API needed)
-        static_terms = QUERY_SYNONYMS.get(q)
+        terms: set[str] = {query.strip()}
 
-        try:
-            response = await self.client().chat.completions.create(
-                model=settings.OPENAI_MODEL,
-                messages=[{"role": "user", "content": SEARCH_EXPAND_PROMPT.format(query=query.strip())}],
-                temperature=0.1,
-                max_tokens=150,
-                response_format={"type": "json_object"},
-            )
-            data = json.loads(response.choices[0].message.content)
-            terms = [t.strip() for t in data.get("terms", []) if t.strip()]
-            if query.strip() not in terms:
-                terms.insert(0, query.strip())
-            terms = terms[:8]
-            await cache.set(cache_key, terms, ttl=3600)
-            return terms
-        except Exception as e:
-            logger.warning("Query expansion failed for '%s': %s", query, e)
-            # Use static dict if available, otherwise original term
-            if static_terms:
-                await cache.set(cache_key, static_terms, ttl=3600)
-                return static_terms
-            return [query.strip()]
+        # Normalize: remove apostrophes for broader matching
+        q_norm = q.replace("'", "").replace("'", "").replace("`", "")
+
+        # 1. Exact match
+        if q in QUERY_SYNONYMS:
+            terms.update(QUERY_SYNONYMS[q])
+
+        # 2. Normalized match (e.g. "sog'liq" → "soglik")
+        if q_norm in QUERY_SYNONYMS:
+            terms.update(QUERY_SYNONYMS[q_norm])
+
+        # 3. Prefix match — "texnolog" matches "texnologiya"
+        for key, synonyms in QUERY_SYNONYMS.items():
+            key_norm = key.replace("'", "").replace("'", "")
+            if key_norm.startswith(q_norm) or q_norm.startswith(key_norm):
+                terms.update(synonyms)
+
+        # 4. Multi-word: expand each token separately
+        tokens = q.split()
+        if len(tokens) > 1:
+            for token in tokens:
+                tok_norm = token.replace("'", "").replace("'", "")
+                if token in QUERY_SYNONYMS:
+                    terms.update(QUERY_SYNONYMS[token])
+                elif tok_norm in QUERY_SYNONYMS:
+                    terms.update(QUERY_SYNONYMS[tok_norm])
+                else:
+                    for key, synonyms in QUERY_SYNONYMS.items():
+                        key_norm = key.replace("'", "").replace("'", "")
+                        if key_norm == tok_norm or key_norm.startswith(tok_norm):
+                            terms.update(synonyms)
+
+        result = list(terms)[:10]
+        await cache.set(cache_key, result, ttl=3600)
+        logger.info("Query expanded '%s' → %s", query, result)
+        return result
 
     async def generate(self, text: str, language: str = "uz") -> dict | None:
         clean = _clean_html(text)
