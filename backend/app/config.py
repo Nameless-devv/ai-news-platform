@@ -35,7 +35,13 @@ class Settings(BaseSettings):
     CACHE_TTL: int = 300
 
     # CORS
-    ALLOWED_ORIGINS: list[str] = ["http://localhost:3000", "http://frontend:3000"]
+    ALLOWED_ORIGINS: list[str] = [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://frontend:3000",
+        "http://164.92.176.238:3000",
+        "http://164.92.176.238:3001",
+    ]
 
     class Config:
         env_file = ".env"
